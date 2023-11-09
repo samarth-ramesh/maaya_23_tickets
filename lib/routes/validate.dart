@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart';
 import 'package:maaya_tickets/components/success.dart';
 import 'package:maaya_tickets/main.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
@@ -17,6 +18,7 @@ class Validate extends StatefulWidget {
 
 class _ValidateState extends State<Validate> {
   final prnController = TextEditingController();
+  final ticketIdController = TextEditingController();
 
   void showError(String text) {
     Fluttertoast.showToast(
@@ -28,7 +30,6 @@ class _ValidateState extends State<Validate> {
         textColor: Colors.black,
         fontSize: 16.0);
   }
-
 
   void scanPrn() async {
     var res = await Navigator.push(
@@ -44,15 +45,33 @@ class _ValidateState extends State<Validate> {
   }
 
   void submit() async {
-    final uri = baseUri.replace(path: "/ticket", queryParameters: {"token": token, "ticket_id": prnController.text});
-    final resp = await http.get(uri);
+    Response resp;
+    if (ticketIdController.text == "") {
+      final uri = baseUri.replace(path: "/ticket", queryParameters: {
+        "token": token,
+        "ticket_id": prnController.text,
+      });
+
+      resp = await http.get(uri);
+    } else {
+      final uri = baseUri.replace(path: "/ticket/offline", queryParameters: {
+        "token": token,
+        "ticket_id": prnController.text,
+        "offline_id": ticketIdController.text
+      });
+
+      resp = await http.get(uri);
+    }
+
     if (resp.statusCode != 200) {
       final dv = jsonDecode(resp.body);
       final err = dv["error"];
       showError(err);
     } else {
-      showDialog(context: context, builder: (context) => const SuccessComponent());
+      showDialog(
+          context: context, builder: (context) => const SuccessComponent());
       prnController.clear();
+      ticketIdController.clear();
     }
   }
 
@@ -77,6 +96,13 @@ class _ValidateState extends State<Validate> {
                 border: OutlineInputBorder(),
               ),
             ),
+            TextFormField(
+                controller: ticketIdController,
+                decoration: const InputDecoration(
+                  labelText: "Ticket ID",
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number),
             Column(
               children: [
                 Padding(
@@ -87,7 +113,11 @@ class _ValidateState extends State<Validate> {
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
                           "Scan Barcode",
-                          style: GoogleFonts.montserrat(fontSize: 32, fontWeight: FontWeight.w500, letterSpacing: -0.5, wordSpacing: 1),
+                          style: GoogleFonts.montserrat(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: -0.5,
+                              wordSpacing: 1),
                         ),
                       )),
                 ),
@@ -99,7 +129,11 @@ class _ValidateState extends State<Validate> {
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
                           "Submit",
-                          style: GoogleFonts.montserrat(fontSize: 32, fontWeight: FontWeight.w500, letterSpacing: -0.5, wordSpacing: 1),
+                          style: GoogleFonts.montserrat(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: -0.5,
+                              wordSpacing: 1),
                         ),
                       )),
                 ),
