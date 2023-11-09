@@ -39,13 +39,14 @@ dependencies:
   fluttertoast: ^8.2.2
   google_fonts: ^6.1.0
   simple_barcode_scanner: ^0.0.8
+  flutter_barcode_scanner: ^2.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
+  # encourage go`od coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
